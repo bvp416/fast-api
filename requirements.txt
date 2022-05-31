@@ -1,0 +1,5 @@
+fastapi==0.78.0
+hypercorn==0.13.2
+pydantic==1.9.1
+pytest==7.1.2
+pytest-cov==3.0.0
