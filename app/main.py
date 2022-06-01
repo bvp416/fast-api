@@ -70,7 +70,7 @@ def return_query(hostname_and_port, query):
                     'path': result[0]['path'],
                     'status': result[0]['status']
                 }
-            return result
+    return result
 
 @app.get('/urlinfo/1/{hostname_and_port}/')
 def get_resource_scan(hostname_and_port: str, query: str):
