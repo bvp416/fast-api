@@ -22,26 +22,58 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-db = [
-    {
-    'name' : 'youtube.com',
-    'status' : 'safe'
+db = {
+    'google_com': {
+        '443': [
+            {
+                'path' : '/test1',
+                'status' : 'safe'
+                },
+        ],
+        '80': [
+            {
+                'path' : '/test2',
+                'status' : 'unsafe'
+            },
+            {
+                'path' : '/test3',
+                'status' : 'unsafe'
+            },
+        ],
     },
-    {
-    'name' : 'menlosecurity.com',
-    'status' : 'unsafe'
+    'youtube_com': {
+        '443': [
+            {
+                'path' : '/feed/history',
+                'status' : 'safe'
+                },
+        ],
+        '80': [
+            {
+                'path' : '/feed/downloads',
+                'status' : 'unsafe'
+            },
+        ],
     },
-]
+}
 
-def return_query(query_string):
+def return_query(hostname_and_port, query):
     """Queries the database and returns data on the queried object."""
-    return list(filter(lambda item: item['name'] == f'{query_string}', db))[0]
+    host = hostname_and_port.split(":")[0].replace('.', '_')
+    port = hostname_and_port.split(":")[1]
 
-@app.get('/urlinfo/1/{hostname_and_port}/{original_path_and_query_string}')
-def get_resource_scan(
-    hostname_and_port: str,
-    original_path_and_query_string: str
-    ):
+    if host in db:
+        if port in db[host]:
+            result = list(filter(lambda d: d['path'] == query, db[host][port]))
+            if len(result) > 0:
+                return {
+                    'path': result[0]['path'],
+                    'status': result[0]['status']
+                }
+            return result
+
+@app.get('/urlinfo/1/{hostname_and_port}/')
+def get_resource_scan(hostname_and_port: str, query: str):
     """GET call that receives request to scan specified resource object."""
-    result = return_query(original_path_and_query_string)
+    result = return_query(hostname_and_port, query)
     return result
